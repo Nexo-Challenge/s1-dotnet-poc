@@ -1,0 +1,1 @@
+Planejar e registrar testes de validações, regra de negócio, cadastro, listagem, busca, erros e persistência entre execuções.

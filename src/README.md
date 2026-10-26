@@ -1,0 +1,1 @@
+Código console a implementar após aprovação do recorte e entidade. Não há aplicação executável nesta estrutura.
