@@ -1,34 +1,95 @@
-# s1-dotnet-poc
+# NexoNuclear — Prova de Conceito .NET de Dosimetria e Educação Nuclear
 
-## Finalidade
-**FIAP — Sprint 1 — Advanced Business Development with .NET.** Challenge 2026, tecnologia nuclear / Marinha. Este repositório é um entregável acadêmico; reutilização no produto real deve ser explicitamente acordada.
+**FIAP — Sprint 1 (Sprint Flash) — Advanced Business Development with .NET**  
+**Challenge 2026:** Parceria Marinha do Brasil / AMAZUL (Centro Tecnológico da Marinha em São Paulo - CTMSP)  
+**Grupo:** Nexo  
 
-**Estado: estrutura documental inicial. Não há implementação funcional, testes executados ou entrega concluída.**
+---
 
-## Fonte e prazo
-Fonte: `2TDS Agosto - Marinha 2026 - 1º Semestre V2.pdf`, seção **Advanced Business Development with .NET 1/3–3/3**, fornecido pelo grupo. O PDF original não foi republicado.
+## 1. Integrantes do Grupo (Nexo)
 
-O documento diverge: seção Entregas indica **01/11/2026**, Cronograma indica **até 02/11/2026**. Confirmar data e horário no portal/professor; nenhuma das datas foi validada como definitiva. Documentar eventuais instruções atualizadas do portal.
+| Nome Completo | RM | Turma | Responsabilidade Principal |
+| :--- | :--- | :--- | :--- |
+| **Alisson Kawan Evangelista Silva** | **RM567598** | 2TDS | Responsável Técnico (Java e .NET) |
+| [Nome do Integrante 2] | [RM] | 2TDS | Banco de Dados / Modelagem |
+| [Nome do Integrante 3] | [RM] | 2TDS | Frontend / Mobile |
+| [Nome do Integrante 4] | [RM] | 2TDS | DevOps Tools & Cloud Computing |
+| [Nome do Integrante 5] | [RM] | 2TDS | QA, Pitch e Documentação |
 
-## Equipe e responsabilidade
-- Responsável principal: a confirmar.
-- Revisor: a confirmar.
-- Integrantes, nomes, RMs e turma: preencher pelo grupo após conferência e autorização para publicação. Nenhum dado pessoal foi presumido.
+---
 
-## Solução e escopo
-Proposta, público-alvo e recorte funcional ainda precisam ser aprovados. Não interpretar exemplos como requisitos adicionais.
+## 2. Descrição da Solução
 
-## Requisitos da disciplina
-Ver [checklist de entrega](docs/requisitos-sprint-1.md).
+O **Nexo** é uma solução digital educativa criada para aproximar a sociedade da tecnologia nuclear, desmistificando concepções errôneas sobre radiação e energia nuclear, e demonstrando suas aplicações reais em saúde, indústria, agricultura, ciência e geração de energia.
 
-## Arquitetura e contratos
-A definir conforme o recorte aprovado. Não foram selecionadas versões, ambientes ou fornecedores adicionais. Registrar acordos entre áreas e vínculos com outros repositórios antes de implementar.
+Este projeto em **.NET** constitui a Prova de Conceito (PoC) do módulo analítico e educativo de dosimetria cotidiana. Ele calcula a exposição a radiações ionizantes de fundo natural e atividades humanas (alimentos, exames médicos, voos comerciais) e compara os valores acumulados com as diretrizes da **Norma CNEN-NN-3.01** e da **IAEA** (*International Atomic Energy Agency*).
 
-## Execução e testes
-Ainda não há aplicação/scripts executáveis nesta preparação. Substituir esta seção por pré-requisitos, versões, comandos reproduzíveis, configuração sem segredos, dados de teste e resultados reais quando a implementação existir.
+---
+## 3. Como o .NET se aplica à solução do grupo?
 
-## Evidências e entrega
-Os itens permanecem pendentes até verificação. Conferir formato exigido, links acessíveis ao professor e identidade do grupo. Não registrar tokens ou credenciais em vídeos, prints ou arquivos.
+> *"Dentro do ecossistema da solução educacional Nexo, o .NET atua como o módulo analítico e de simulação interativa de dosimetria. Enquanto a API em Java centraliza o catálogo institucional das aplicações e impactos sociais da tecnologia nuclear, o componente em .NET é responsável pelo processamento de cálculos radiológicos e comparação de risco com base em dados técnicos. Ele traduz doses de radiação (microSieverts) em equivalências cotidianas e compreensíveis para o público leigo (como doses equivalentes de bananas ou horas de voo), reforçando a missão de educar a sociedade e evidenciar os protocolos de excelência e segurança adotados pela Marinha do Brasil e pela AMAZUL no PNM."*
 
-## Contribuição
-Ver [CONTRIBUTING.md](CONTRIBUTING.md). Equipes, donos nominais, CODEOWNERS, proteção de branches, CI e permissões não foram configurados.
+---
+
+## 4. O que foi desenvolvido nesta Sprint
+
+- **Aplicação Console Interativa em C# (.NET 10.0 / LTS):** Interface via terminal com menus organizados e navegação contínua.
+- **Entidade de Domínio (`AtividadeRadiologica`):**
+  - Atributos: `Id`, `Nome`, `Categoria`, `Descricao`, `DoseMicrosievert`, `FrequenciaAnual`, `DoseTotalAnual`.
+  - Validações: nome mínimo de 3 caracteres, dose estritamente maior que zero, frequência maior que zero.
+- **Regras de Negócio e Dosimetria (`CalculadoraDosimetriaService`):**
+  - Classificação de risco em conformidade com o limite anual para indivíduos do público da CNEN (1.000 µSv/ano = 1 mSv/ano).
+  - Porcentagem de consumo do limite regulatório anual.
+  - Equivalência educativa: BED (*Banana Equivalent Dose*, 0,1 µSv) e horas de voo comercial (5,0 µSv/h).
+- **Simulador Interativo Pessoal:** O usuário responde sobre hábitos (exames de Raio-X, tomografias, voos e consumo alimentar) e obtém o total anual estimado comparado à radiação natural de fundo do planeta (2.400 µSv/ano).
+- **Persistência de Dados em Arquivo JSON (`RepositorioAtividadesJson`):**
+  - Arquivo `atividades_nucleares.json` com persistência automática de novos cadastros.
+  - Carga inicial (*seed*) com 5 atividades reais cobrindo medicina, indústria, transporte aéreo e o Programa Nuclear da Marinha.
+- **Tratamento Global de Exceções:** Blocos `try/catch` para impedir encerramentos abruptos em entradas inválidas.
+
+Consulte o [checklist oficial de requisitos](docs/requisitos-sprint-1.md) para detalhes de conformidade.
+
+---
+
+## 5. Estrutura do Código
+
+```text
+s1-dotnet-poc/
+├── docs/
+│   └── requisitos-sprint-1.md                 # Checklist de conformidade da Sprint 1
+├── src/
+│   └── NexoNuclear.Console/
+│       ├── Models/
+│       │   └── AtividadeRadiologica.cs        # Entidade de domínio e validações
+│       ├── Services/
+│       │   ├── CalculadoraDosimetriaService.cs # Regras de dosimetria, CNEN e equivalências
+│       │   └── RepositorioAtividadesJson.cs    # Persistência em JSON e sementes
+│       ├── Program.cs                         # Ponto de entrada e menu interativo
+│       └── NexoNuclear.Console.csproj         # Configuração do projeto .NET 10
+├── .gitignore                                 # Regras de exclusão Git
+└── README.md                                  # Documentação principal
+```
+
+---
+
+## 6. Instruções de Execução e Teste
+
+### Pré-requisitos:
+- [.NET 8.0 SDK ou superior / .NET 10.0](https://dotnet.microsoft.com/download)
+
+### Comandos para Compilar e Executar:
+```bash
+# 1. Navegue até a pasta do repositório
+cd src/NexoNuclear.Console
+
+# 2. Compile a aplicação
+dotnet build
+
+# 3. Execute o console
+dotnet run
+```
+
+Ou a partir da raiz do repositório:
+```bash
+dotnet run --project src/NexoNuclear.Console
+```
