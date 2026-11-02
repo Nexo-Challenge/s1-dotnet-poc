@@ -452,3 +452,7 @@ node_modules/
 # Arquivos temporários
 *.log
 *.tmp
+
+# Catálogo local e backup: não publicar dados de uso
+atividades_nucleares.json
+atividades_nucleares.json.bak

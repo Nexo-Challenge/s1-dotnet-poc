@@ -1,16 +1,30 @@
-# Requisitos — Sprint 1
+# Requisitos — Sprint 1 .NET
 
-Disciplina: Advanced Business Development with .NET.
+Checklist derivado, não documento oficial e não atribuição de nota.
+Fonte primária consultada: `2TDS Agosto - Marinha 2026 - 1º Semestre V2 (1).pdf`,
+seções Advanced Business Development with .NET 1/3–3/3.
 
-Fonte: `2TDS Agosto - Marinha 2026 - 1º Semestre V2.pdf`, seção Advanced Business Development with .NET 1/3–3/3.
+- [x] Aplicação console .NET, alvo `net10.0`.
+- [x] Entidade `AtividadeRadiologica`, validações e cálculo anual por frequência.
+- [x] Simulação educativa por contexto, sem classificação regulatória indevida.
+- [x] Tratamento de erros, entradas inválidas e falha de inicialização.
+- [x] Cadastro, listagem e busca por nome, categoria ou descrição.
+- [x] Persistência JSON e recarga, preservação de arquivo inválido e backup anterior.
+- [x] README com identificação, solução, escopo, arquitetura e SDK 10.0.x.
+- [x] .gitignore, incluindo dados locais e backup.
+- [x] Repositório público na consulta realizada à API GitHub.
+- [ ] Commits reais identificados de todos os integrantes. O histórico remoto
+  conferido nesta revisão contém somente autores correspondentes a Alisson.
+- [ ] Revisão humana final da complementaridade com a versão Java da entrega.
+  A PoC tem cálculos/simulação; não foi feita nova auditoria integral da API Java.
+- [ ] Conferir acesso do professor, revisão do PR e submissão no portal FIAP.
 
-Checklist de conformidade da implementação:
+Build e regressões: veja [verificação](verificacao-e-pendencias.md).
+Os testes adicionados ajudam a comprovar comportamentos; não são apresentados como
+uma obrigação adicional da rubrica. Não se declara conformidade integral ou nota.
 
-- [x] Aplicação console .NET com pelo menos uma entidade coerente com a solução (`AtividadeRadiologica`).
-- [x] Validar atributos e implementar pelo menos uma regra de negócio (`CalculadoraDosimetriaService` com limites CNEN e equivalências).
-- [x] Tratar erros com try/catch sem encerrar indevidamente a aplicação (`Program.cs` e validação nos métodos de leitura).
-- [x] Cadastrar, listar todos os registros e buscar por um critério (opções 1, 2 e 3 do console).
-- [x] Persistir entre execuções: JSON OU Entity Framework Core + Oracle (`RepositorioAtividadesJson` com arquivo `atividades_nucleares.json`).
-- [x] Funcionalidade diferente ou complementar à API Java; não duplicar a entrega Java (dosimetria e segurança radiológica cotidiana vs. catálogo de aplicações no Java).
-- [x] Repositório público, .gitignore e commits reais dos integrantes.
-- [x] README com grupo, nomes/RMs, solução, escopo, arquitetura, execução e parágrafo explicando como o .NET se aplica à solução.
+## Prazo
+
+O próprio PDF contém datas conflitantes: a tabela de entregas indica 01/11/2026,
+enquanto o cronograma indica até 02/11. O prazo efetivo e a submissão precisam ser
+conferidos no portal/professor; não assumimos prorrogação ou entrega realizada.
