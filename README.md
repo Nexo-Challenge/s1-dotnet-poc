@@ -1,12 +1,9 @@
-# NexoNuclear — Prova de Conceito .NET de Dosimetria e Educação Nuclear
+# NexoNuclear — PoC educativa .NET
 
-**FIAP — Sprint 1 (Sprint Flash) — Advanced Business Development with .NET**  
-**Challenge 2026:** Parceria Marinha do Brasil / AMAZUL (Centro Tecnológico da Marinha em São Paulo - CTMSP)  
-**Grupo:** Nexo  
+FIAP — Sprint 1 (Sprint Flash), Advanced Business Development with .NET.
+Challenge 2026: Marinha do Brasil / AMAZUL / CTMSP. Grupo Nexo.
 
----
-
-## 1. Integrantes do Grupo (Nexo)
+## Integrantes
 
 | Nome Completo | RM | Turma | Responsabilidade Principal |
 | :--- | :--- | :--- | :--- |
@@ -16,80 +13,113 @@
 | **Eduardo Boni** | **RM567236** | 2TDS | Mobile Application Development |
 | **Marcos Vinicius de Jesus Almeida** | **RM567214** | 2TDS | Documentação e Qualidade de Software (QA) |
 
----
+A identificação acima não comprova contribuição no Git. A participação real de todos
+continua pendente de conferência e contribuição individual; veja
+[verificação e pendências](docs/verificacao-e-pendencias.md).
 
-## 2. Descrição da Solução
+## Solução e escopo
 
-O **Nexo** é uma solução digital educativa criada para aproximar a sociedade da tecnologia nuclear, desmistificando concepções errôneas sobre radiação e energia nuclear, e demonstrando suas aplicações reais em saúde, indústria, agricultura, ciência e geração de energia.
+O Nexo propõe aproximar a sociedade das aplicações e benefícios da tecnologia nuclear.
+Este repositório é somente o entregável acadêmico .NET: uma aplicação console com
+cadastro, listagem, busca por nome/categoria/descrição e persistência em JSON.
+Não é o produto completo, não é uma API e não depende do backend Java ou de Oracle.
 
-Este projeto em **.NET** constitui a Prova de Conceito (PoC) do módulo analítico e educativo de dosimetria cotidiana. Ele calcula a exposição a radiações ionizantes de fundo natural e atividades humanas (alimentos, exames médicos, voos comerciais) e compara os valores acumulados com as diretrizes da **Norma CNEN-NN-3.01** e da **IAEA** (*International Atomic Energy Agency*).
+## Como o .NET se aplica à solução do grupo?
 
----
-## 3. Como o .NET se aplica à solução do grupo?
+O .NET demonstra cálculos educativos por contexto: estimativas de exames de radiologia
+diagnóstica e um cenário hipotético de voos. Isso complementa o catálogo de aplicações
+nucleares da API Java, sem repetir sua funcionalidade. As regras são a validação do
+cadastro, dose por evento multiplicada pela frequência anual e a simulação separada
+por contexto. Não há classificação de segurança, diagnóstico, porcentagem de limite
+regulatório ou recomendação de exames. Esta PoC não certifica instalações ou atividades
+da Marinha/AMAZUL.
 
-> *"Dentro do ecossistema da solução educacional Nexo, o .NET atua como o módulo analítico e de simulação interativa de dosimetria. Enquanto a API em Java centraliza o catálogo institucional das aplicações e impactos sociais da tecnologia nuclear, o componente em .NET é responsável pelo processamento de cálculos radiológicos e comparação de risco com base em dados técnicos. Ele traduz doses de radiação (microSieverts) em equivalências cotidianas e compreensíveis para o público leigo (como doses equivalentes de bananas ou horas de voo), reforçando a missão de educar a sociedade e evidenciar os protocolos de excelência e segurança adotados pela Marinha do Brasil e pela AMAZUL no PNM."*
+## O que foi desenvolvido
 
----
+- Console C# com menu contínuo, tratamento de erros e encerramento em fim de entrada.
+- Entidade `AtividadeRadiologica`: ID, nome, categoria, descrição, estimativa de dose
+  efetiva por evento (µSv), frequência e resultado aritmético anual.
+- Nome com ao menos três caracteres; dose positiva e finita; frequência positiva;
+  rejeição de NaN, infinitos e overflow do resultado anual.
+- Simulador: exames médicos e voos exibidos separadamente. Alimentação aparece apenas
+  como contagem ilustrativa, sem conversão de bananas em dose acumulada.
+- Cinco exemplos iniciais com valores médicos típicos da FDA ou hipótese de voo
+  explicitamente didática. Fontes e hipóteses em [fontes e limitações](docs/fontes-e-limitacoes.md).
+- JSON validado na leitura, gravação em temporário no mesmo diretório e substituição
+  do destino com backup anterior. Cadastro só confirmado após gravação bem-sucedida.
+- Testes de regressão executáveis, incluindo subprocessos reais do console.
 
-## 4. O que foi desenvolvido nesta Sprint
+## Arquitetura
 
-- **Aplicação Console Interativa em C# (.NET 10.0 / LTS):** Interface via terminal com menus organizados e navegação contínua.
-- **Entidade de Domínio (`AtividadeRadiologica`):**
-  - Atributos: `Id`, `Nome`, `Categoria`, `Descricao`, `DoseMicrosievert`, `FrequenciaAnual`, `DoseTotalAnual`.
-  - Validações: nome mínimo de 3 caracteres, dose estritamente maior que zero, frequência maior que zero.
-- **Regras de Negócio e Dosimetria (`CalculadoraDosimetriaService`):**
-  - Classificação de risco em conformidade com o limite anual para indivíduos do público da CNEN (1.000 µSv/ano = 1 mSv/ano).
-  - Porcentagem de consumo do limite regulatório anual.
-  - Equivalência educativa: BED (*Banana Equivalent Dose*, 0,1 µSv) e horas de voo comercial (5,0 µSv/h).
-- **Simulador Interativo Pessoal:** O usuário responde sobre hábitos (exames de Raio-X, tomografias, voos e consumo alimentar) e obtém o total anual estimado comparado à radiação natural de fundo do planeta (2.400 µSv/ano).
-- **Persistência de Dados em Arquivo JSON (`RepositorioAtividadesJson`):**
-  - Arquivo `atividades_nucleares.json` com persistência automática de novos cadastros.
-  - Carga inicial (*seed*) com 5 atividades reais cobrindo medicina, indústria, transporte aéreo e o Programa Nuclear da Marinha.
-- **Tratamento Global de Exceções:** Blocos `try/catch` para impedir encerramentos abruptos em entradas inválidas.
+- `src/NexoNuclear.Console/Models/AtividadeRadiologica.cs`: entidade e validações.
+- `src/NexoNuclear.Console/Services/CalculadoraDosimetriaService.cs`: cálculos educativos
+  e `ResultadoSimulacao`, sem classificação regulatória.
+- `src/NexoNuclear.Console/Services/RepositorioAtividadesJson.cs`: cadastro, consultas,
+  validação e persistência. Consultas devolvem cópias para evitar alteração interna acidental.
+- `src/NexoNuclear.Console/Program.cs`: interação, menu e tratamento de erros.
+- `tests/NexoNuclear.Regression`: executor de regressão sem pacotes externos.
+- `docs/`: checklist derivado, fontes e registro de verificação/pendências.
 
-Consulte o [checklist oficial de requisitos](docs/requisitos-sprint-1.md) para detalhes de conformidade.
+## Pré-requisito e execução
 
----
+Instale o .NET SDK 10.0.x. O alvo é `net10.0`: apenas o SDK 8 não compila este projeto.
+Confira a instalação com `dotnet --list-sdks`.
 
-## 5. Estrutura do Código
+Na raiz deste repositório:
 
-```text
-s1-dotnet-poc/
-├── docs/
-│   └── requisitos-sprint-1.md                 # Checklist de conformidade da Sprint 1
-├── src/
-│   └── NexoNuclear.Console/
-│       ├── Models/
-│       │   └── AtividadeRadiologica.cs        # Entidade de domínio e validações
-│       ├── Services/
-│       │   ├── CalculadoraDosimetriaService.cs # Regras de dosimetria, CNEN e equivalências
-│       │   └── RepositorioAtividadesJson.cs    # Persistência em JSON e sementes
-│       ├── Program.cs                         # Ponto de entrada e menu interativo
-│       └── NexoNuclear.Console.csproj         # Configuração do projeto .NET 10
-├── .gitignore                                 # Regras de exclusão Git
-└── README.md                                  # Documentação principal
-```
-
----
-
-## 6. Instruções de Execução e Teste
-
-### Pré-requisitos:
-- [.NET 8.0 SDK ou superior / .NET 10.0](https://dotnet.microsoft.com/download)
-
-### Comandos para Compilar e Executar:
 ```bash
-# 1. Navegue até a pasta do repositório
-cd src/NexoNuclear.Console
-
-# 2. Compile a aplicação
-dotnet build
-
-# 3. Execute o console
-dotnet run
-```
-
-Ou a partir da raiz do repositório:
-```bash
+dotnet build src/NexoNuclear.Console --configuration Release --warnaserror
 dotnet run --project src/NexoNuclear.Console
 ```
+
+No Visual Studio, abra `src/NexoNuclear.Console/NexoNuclear.Console.csproj`.
+A pasta avulsa `NexoNuclear.Console` fora deste repositório não é mantida automaticamente.
+
+Menu: 1 listar; 2 buscar; 3 cadastrar; 4 simular; 5 contexto educativo; 0 sair.
+No cadastro, use ponto ou vírgula decimal, por exemplo `0.5` ou `0,5`.
+
+## Dados, backup e recuperação
+
+O arquivo `atividades_nucleares.json` fica ao lado do executável, por exemplo
+`src/NexoNuclear.Console/bin/Debug/net10.0/` no `dotnet run` padrão. Release usa outro
+diretório: Debug e Release não compartilham dados automaticamente. Faça cópia dos
+arquivos antes de limpar `bin`, trocar configuração ou substituir a instalação.
+
+- Os exemplos iniciais são criados somente se o arquivo de dados não existir.
+- Um catálogo válido `[]` continua vazio; não é repovoado automaticamente.
+- JSON corrompido, registro inválido ou falha de leitura impede a abertura com uma
+  mensagem explicativa e saída controlada. O arquivo existente não é sobrescrito.
+- Ao substituir um arquivo existente, `.bak` guarda a versão anterior. É um backup
+  rotativo, não um histórico completo; a gravação seguinte pode substituí-lo.
+- Para recuperar: feche o console, copie o arquivo problemático para um local seguro,
+  confira o `.bak` e só então restaure uma cópia válida no caminho original. Não
+  remova o original para tentar recuperar registros: isso apenas criaria exemplos novos.
+- Dados de versões antigas não são migrados nem corrigidos automaticamente. Revise
+  descrições e hipóteses antigas, especialmente bananas, Angra e classificações médicas.
+  Para demonstrar o catálogo novo, use uma instalação separada sem arquivo de dados,
+  preservando o catálogo antigo e seus cadastros.
+- Escopo: uma instância local por arquivo. Não abrir duas instâncias nem editar o
+  JSON enquanto o console está aberto. Não há coordenação de escritores concorrentes.
+- Substituição segura depende do suporte do sistema de arquivos. Falha é reportada,
+  sem fallback destrutivo. Isso não é garantia contra toda falha de hardware.
+- Não cadastrar dados pessoais ou históricos médicos reais. Os exemplos são didáticos.
+
+## Testes
+
+```bash
+dotnet run --project tests/NexoNuclear.Regression --configuration Release
+```
+
+É um executor próprio, não uma suíte xUnit/MSTest: execute com `dotnet run`, não use
+`dotnet test` como prova de aprovação. O processo retorna zero quando todos passam e
+um em caso de falha. Usa diretórios isolados e não altera seu catálogo de uso.
+Detalhes: [tests/README.md](tests/README.md).
+
+## Limitações e entrega
+
+Os valores não representam a dose individual e não devem orientar decisões de saúde.
+Não somamos contextos distintos para compará-los ao limite de exposição do público.
+Veja [fontes e limitações](docs/fontes-e-limitacoes.md) e o
+[checklist derivado da rubrica](docs/requisitos-sprint-1.md).
+A aprovação técnica não substitui revisão humana, participação real dos integrantes
+ou conferência da submissão no portal FIAP. Não há garantia de nota ou de atendimento integral.

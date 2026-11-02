@@ -15,7 +15,7 @@ namespace NexoNuclear.Models
         public string Descricao { get; set; } = string.Empty;
 
         /// <summary>
-        /// Dose absorvida média por evento em microsieverts (µSv).
+        /// Estimativa de dose efetiva por evento em microsieverts (µSv); não dose absorvida em gray.
         /// </summary>
         public double DoseMicrosievert { get; set; }
 
@@ -54,9 +54,10 @@ namespace NexoNuclear.Models
                 throw new ArgumentException("O nome da atividade deve possuir no mínimo 3 caracteres.");
             }
 
-            if (doseMicrosievert <= 0)
+            if (!double.IsFinite(doseMicrosievert) || doseMicrosievert <= 0 ||
+                !double.IsFinite(doseMicrosievert * frequenciaAnual))
             {
-                throw new ArgumentException("A dose em microsieverts (µSv) deve ser maior que zero.");
+                throw new ArgumentException("A dose deve ser finita, maior que zero e produzir um total anual finito.");
             }
 
             if (frequenciaAnual <= 0)

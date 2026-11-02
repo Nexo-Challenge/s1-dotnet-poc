@@ -8,12 +8,22 @@ namespace NexoNuclear
 {
     internal class Program
     {
-        private static readonly RepositorioAtividadesJson Repositorio = new();
+        private static RepositorioAtividadesJson Repositorio = null!;
         private static readonly CalculadoraDosimetriaService Calculadora = new();
 
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+            try
+            {
+                Repositorio = new RepositorioAtividadesJson();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Erro ao iniciar] {ex.Message}");
+                Environment.ExitCode = 1;
+                return;
+            }
             bool executando = true;
 
             while (executando)
@@ -23,6 +33,7 @@ namespace NexoNuclear
                     ExibirMenuPrincipal();
                     Console.Write("Escolha uma opção: ");
                     string? opcao = Console.ReadLine()?.Trim();
+                    if (opcao == null) break;
 
                     Console.WriteLine();
                     switch (opcao)
@@ -55,6 +66,10 @@ namespace NexoNuclear
                             break;
                     }
                 }
+                catch (EndOfStreamException)
+                {
+                    break;
+                }
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -73,7 +88,7 @@ namespace NexoNuclear
 
         private static void ExibirMenuPrincipal()
         {
-            Console.Clear();
+            if (!Console.IsOutputRedirected) Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("================================================================================");
             Console.WriteLine("       NEXONUCLEAR - MÓDULO .NET DE DOSIMETRIA E TECNOLOGIA NUCLEAR            ");
@@ -142,10 +157,10 @@ namespace NexoNuclear
 
             try
             {
-                Console.Write("Nome da atividade (ex: Ressonância / Exame / Voo): ");
+                Console.Write("Nome da atividade ionizante (ex: Raio-X de tórax PA / Voo hipotético): ");
                 string? nome = Console.ReadLine();
 
-                Console.Write("Categoria (ex: Medicina Nuclear, Indústria, Alimentos, Cotidiano): ");
+                Console.Write("Categoria (ex: Radiologia diagnóstica, Radiação cósmica em voo): ");
                 string? categoria = Console.ReadLine();
 
                 Console.Write("Descrição / Justificativa educativa: ");
@@ -153,10 +168,10 @@ namespace NexoNuclear
 
                 Console.Write("Dose média por evento em microsieverts (µSv) [ex: 20 ou 0.1]: ");
                 string? doseStr = Console.ReadLine()?.Replace(',', '.');
-                if (!double.TryParse(doseStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double dose) || dose <= 0)
+                if (!double.TryParse(doseStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double dose) || !double.IsFinite(dose) || dose <= 0)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("[Erro] Valor de dose inválido. Deve ser um número decimal maior que zero.");
+                    Console.WriteLine("[Erro] Valor de dose inválido. Deve ser um número finito maior que zero.");
                     Console.ResetColor();
                     return;
                 }
@@ -194,102 +209,52 @@ namespace NexoNuclear
 
         private static void ExecutarSimuladorDosimetria()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("--- SIMULADOR INTERATIVO DE EXPOSIÇÃO RADIOLÓGICA PESSOAL ---");
-            Console.ResetColor();
-            Console.WriteLine("Responda às perguntas abaixo para calcular sua estimativa de dose anual:");
-            Console.WriteLine();
+            Console.WriteLine("--- SIMULADOR EDUCATIVO: CONTEXTOS SEPARADOS ---");
+            Console.WriteLine("Estimativas ilustrativas. Não é avaliação médica ou de conformidade regulatória.");
+            Console.Write("Quantas radiografias de tórax PA no ano? ");
+            int raiox = LerInteiroNaoNegativo();
+            Console.Write("Quantas tomografias de abdômen no ano? ");
+            int tomografias = LerInteiroNaoNegativo();
+            Console.Write("Quantas horas de voo comercial no ano? ");
+            int horasVoo = LerInteiroNaoNegativo();
+            Console.Write("Quantas bananas por semana (apenas exemplo alimentar)? ");
+            int bananasSemana = LerInteiroNaoNegativo();
 
-            try
-            {
-                Console.Write("Quantos exames de Raio-X você realizou no último ano? ");
-                int raiox = LerInteiroNaoNegativo();
-
-                Console.Write("Quantas Tomografias Computadorizadas você realizou? ");
-                int tomografias = LerInteiroNaoNegativo();
-
-                Console.Write("Quantas horas você passou voando em aviões comerciais no ano? ");
-                int horasVoo = LerInteiroNaoNegativo();
-
-                Console.Write("Quantas bananas você consome por semana em média? ");
-                int bananasSemana = LerInteiroNaoNegativo();
-
-                // Cálculos baseados em doses médias conhecidas
-                double doseRaioX = raiox * 20.0; // 20 µSv cada
-                double doseTC = tomografias * 8000.0; // 8.000 µSv cada
-                double doseVoo = horasVoo * CalculadoraDosimetriaService.DoseHoraVooComercial; // 5 µSv/h
-                double doseBananas = (bananasSemana * 52) * CalculadoraDosimetriaService.DoseEquivalenteBanana; // 0.1 µSv cada
-                double doseFundoNaturalSolo = 2400.0; // Média global de radiação cósmica e do solo (2.4 mSv = 2400 µSv)
-
-                double doseTotal = doseRaioX + doseTC + doseVoo + doseBananas + doseFundoNaturalSolo;
-
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("=================== RESULTADO DA SIMULAÇÃO ===================");
-                Console.ResetColor();
-                Console.WriteLine($"- Radiação Natural de Fundo (Inerente ao planeta): 2.400,00 µSv/ano");
-                Console.WriteLine($"- Doses Médicas (Exames): {(doseRaioX + doseTC):N2} µSv/ano");
-                Console.WriteLine($"- Radiação Cósmica (Voos): {doseVoo:N2} µSv/ano");
-                Console.WriteLine($"- Alimentação (Bananas K-40): {doseBananas:N2} µSv/ano");
-                Console.WriteLine("--------------------------------------------------------------");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine($"Dose Total Estimada no Ano: {doseTotal:N2} µSv ({doseTotal / 1000.0:N2} mSv)");
-                Console.ResetColor();
-
-                double doseAntropica = doseRaioX + doseTC + doseVoo + doseBananas;
-                string classificacao = Calculadora.ClassificarRiscoAnual(doseAntropica);
-                double pctLimite = Calculadora.CalcularPorcentagemLimiteCnen(doseAntropica);
-
-                Console.WriteLine();
-                Console.WriteLine($"Classificação de Segurança (atividades civis): {classificacao}");
-                Console.WriteLine($"Impacto sobre a norma civil CNEN (1.000 µSv/ano): {pctLimite}% do limite civil");
-                Console.WriteLine("==============================================================");
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"[Erro no Simulador] {ex.Message}");
-                Console.ResetColor();
-            }
+            var resultado = Calculadora.Simular(raiox, tomografias, horasVoo, bananasSemana);
+            Console.WriteLine("================ RESULTADO EDUCATIVO ================");
+            Console.WriteLine($"Exames médicos: {resultado.DoseMedicaMicrosievert:N2} µSv/ano (estimativa típica).");
+            Console.WriteLine("Parâmetros: tórax PA = 20 µSv; TC de abdômen = 8.000 µSv. Fonte: FDA.");
+            Console.WriteLine("A dose real depende do exame, paciente, equipamento e protocolo.");
+            Console.WriteLine($"Voos: {resultado.DoseVoosMicrosievert:N2} µSv/ano (hipótese didática de 5 µSv/h).");
+            Console.WriteLine("Não representa uma rota real: altitude, latitude e duração alteram a exposição.");
+            Console.WriteLine($"Alimentação: {resultado.BananasPorAno} bananas/ano (52 semanas ilustrativas).");
+            Console.WriteLine("Não convertemos bananas em dose anual acumulada ou em indicação de risco.");
+            Console.WriteLine("Não somamos esses contextos nem acrescentamos uma média de fundo natural.");
+            Console.WriteLine("Não aplicamos o limite de exposição do público a exames ou fundo natural.");
+            Console.WriteLine("O resultado não recomenda nem contraindica exames. Converse com a equipe de saúde.");
+            Console.WriteLine("Fontes e limitações: docs/fontes-e-limitacoes.md (ANSN 3.01 e FDA).");
         }
 
         private static void ExibirSobreProjetoNuclear()
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("================================================================================");
-            Console.WriteLine("      A VERDADE SOBRE A ENERGIA NUCLEAR - PARCERIA MARINHA DO BRASIL / AMAZUL   ");
-            Console.WriteLine("================================================================================");
-            Console.ResetColor();
-            Console.WriteLine("1. GERAÇÃO LIMPA E SEGURA:");
-            Console.WriteLine("   A energia nuclear é uma das fontes de eletricidade mais limpas do planeta,");
-            Console.WriteLine("   com emissão de gases do efeito estufa próxima de zero durante a operação.");
-            Console.WriteLine();
-            Console.WriteLine("2. PROGRAMA NUCLEAR DA MARINHA (PNM / CTMSP):");
-            Console.WriteLine("   Desde 1979, o Brasil desenvolve de forma 100% autônoma o domínio do ciclo do");
-            Console.WriteLine("   combustível nuclear e a tecnologia para propulsão naval e geração de energia.");
-            Console.WriteLine();
-            Console.WriteLine("3. MEDICINA NUCLEAR E AGRICULTURA:");
-            Console.WriteLine("   Radioisótopos produzidos pelo IPEN/CNEN salvam milhares de vidas anualmente no");
-            Console.WriteLine("   tratamento e diagnóstico de câncer (ex: Iodo-131 e Tecnécio-99m) e esterilização.");
-            Console.WriteLine();
-            Console.WriteLine("4. DOSES E SEGURANÇA:");
-            Console.WriteLine("   Viver próximo a uma usina nuclear em operação regular expõe o cidadão a uma dose");
-            Console.WriteLine("   anual menor do que comer algumas bananas ou fazer um voo entre estados.");
-            Console.WriteLine("================================================================================");
+            Console.WriteLine("--- TECNOLOGIA NUCLEAR E EDUCAÇÃO ---");
+            Console.WriteLine("O Challenge FIAP/AMAZUL/Marinha propõe aproximar a sociedade das aplicações");
+            Console.WriteLine("da tecnologia nuclear em saúde, indústria, agricultura, ciência e energia.");
+            Console.WriteLine("Esta PoC demonstra cadastro, consulta e estimativas aritméticas por contexto.");
+            Console.WriteLine("Radiografias e tomografias são radiologia diagnóstica, não medicina nuclear.");
+            Console.WriteLine("Não mede doses, não classifica segurança e não certifica instalações do PNM.");
+            Console.WriteLine("Fontes e limitações: docs/fontes-e-limitacoes.md.");
         }
 
         private static void ExibirCardAtividade(AtividadeRadiologica item)
         {
-            string risco = Calculadora.ClassificarRiscoAnual(item.DoseTotalAnual);
-            double bananas = Calculadora.CalcularEquivalenciaBananas(item.DoseTotalAnual);
-            double pctCnen = Calculadora.CalcularPorcentagemLimiteCnen(item.DoseTotalAnual);
+            // Cadastro educativo: categoria livre não determina enquadramento regulatório.
 
             Console.WriteLine($"[ID #{item.Id}] {item.Nome} ({item.Categoria})");
             Console.WriteLine($"    Descrição: {item.Descricao}");
             Console.WriteLine($"    Dose por evento: {item.DoseMicrosievert:N2} µSv | Frequência/Ano: {item.FrequenciaAnual}x");
-            Console.WriteLine($"    Dose Total Anual: {item.DoseTotalAnual:N2} µSv ({pctCnen}% do limite anual civil CNEN)");
-            Console.WriteLine($"    Classificação: {risco}");
-            Console.WriteLine($"    Equivalência Educativa: ~{bananas:N0} bananas consumidas no ano");
+            Console.WriteLine($"    Estimativa aritmética anual: {item.DoseTotalAnual:N2} µSv");
+            Console.WriteLine("    Dose por evento x frequência; não é avaliação médica ou regulatória.");
             Console.WriteLine(new string('-', 80));
         }
 
@@ -298,6 +263,7 @@ namespace NexoNuclear
             while (true)
             {
                 string? entrada = Console.ReadLine();
+                if (entrada == null) throw new EndOfStreamException("Entrada encerrada.");
                 if (int.TryParse(entrada, out int valor) && valor >= 0)
                 {
                     return valor;
