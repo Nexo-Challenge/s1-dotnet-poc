@@ -11,10 +11,10 @@
 | Nome Completo | RM | Turma | Responsabilidade Principal |
 | :--- | :--- | :--- | :--- |
 | **Alisson Kawan Evangelista Silva** | **RM567598** | 2TDS | Responsável Técnico (Java e .NET) |
-| [Nome do Integrante 2] | [RM] | 2TDS | Banco de Dados / Modelagem |
-| [Nome do Integrante 3] | [RM] | 2TDS | Frontend / Mobile |
-| [Nome do Integrante 4] | [RM] | 2TDS | DevOps Tools & Cloud Computing |
-| [Nome do Integrante 5] | [RM] | 2TDS | QA, Pitch e Documentação |
+| **Kenji** | **RM568156** | 2TDS | IoT e Banco de Dados |
+| **Erick Ramos** | **RM567837** | 2TDS | DevOps Tools & Cloud Computing |
+| **Eduardo Boni** | **RM567236** | 2TDS | Mobile Application Development |
+| **Marcos Vinicius de Jesus Almeida** | **RM567214** | 2TDS | Documentação e Qualidade de Software (QA) |
 
 ---
 
